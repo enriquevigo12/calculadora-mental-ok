@@ -26,7 +26,7 @@ class StatChip extends StatelessWidget {
     final chipColor = color ?? AppTheme.easyModeColor;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: AppColors.cardDark,
@@ -55,7 +55,7 @@ class StatChip extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppColors.textSecondaryDark,
                     fontWeight: FontWeight.w500,
-                    fontSize: 10,
+                    fontSize: 11,
                   ),
                   textAlign: TextAlign.center,
                 ),

@@ -8,6 +8,8 @@ import 'package:calculadora_mental/shared/widgets/primary_button.dart';
 import 'package:calculadora_mental/shared/widgets/stat_chip.dart';
 import 'package:calculadora_mental/services/storage_service.dart';
 import 'package:calculadora_mental/features/game/domain/models.dart';
+import 'package:calculadora_mental/services/ads_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +19,25 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = AdsService.createBannerAd();
+    _bannerAd!.load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final stats = StorageService.getStats();
@@ -46,6 +67,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 
                 // Bottom buttons
                 _buildBottomButtons(),
+                
+                // Banner ad
+                if (_bannerAd != null)
+                  Container(
+                    width: _bannerAd!.size.width.toDouble(),
+                    height: _bannerAd!.size.height.toDouble(),
+                    child: AdWidget(ad: _bannerAd!),
+                  ),
               ],
             ),
           ),
@@ -103,31 +132,131 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildGameModes() {
     return Column(
       children: [
-        // Modo Fácil
+        // Modos principales (uno al lado del otro)
         Expanded(
-          child: _buildModeCard(
-            title: 'Fácil',
-            subtitle: 'Suma y resta',
-            description: 'Operaciones simples para empezar',
-            gradient: AppGradients.easy,
-            icon: Icons.add_circle_outline,
-            onTap: () => context.go('/game/easy'),
+          child: Row(
+            children: [
+              // Modo Fácil
+              Expanded(
+                child: _buildModeCard(
+                  title: 'Fácil',
+                  subtitle: 'Suma y resta',
+                  description: 'Operaciones simples',
+                  gradient: AppGradients.easy,
+                  icon: Icons.add_circle_outline,
+                  onTap: () => context.go('/game/easy'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              
+              // Modo Difícil
+              Expanded(
+                child: _buildModeCard(
+                  title: 'Difícil',
+                  subtitle: 'Todas las operaciones',
+                  description: 'Multiplicación y división',
+                  gradient: AppGradients.hard,
+                  icon: Icons.functions,
+                  onTap: () => context.go('/game/hard'),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         
-        // Modo Difícil
-        Expanded(
-          child: _buildModeCard(
-            title: 'Difícil',
-            subtitle: 'Todas las operaciones',
-            description: 'Multiplicación y división incluidas',
-            gradient: AppGradients.hard,
-            icon: Icons.functions,
-            onTap: () => context.go('/game/hard'),
-          ),
+        // Modos de práctica (más pequeños)
+        Row(
+          children: [
+            // Práctica Fácil
+            Expanded(
+              child: _buildPracticeCard(
+                title: 'Práctica',
+                subtitle: 'Modo Fácil',
+                gradient: AppGradients.easy.withOpacity(0.7),
+                icon: Icons.school,
+                onTap: () => context.go('/practice/easy'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            
+            // Práctica Difícil
+            Expanded(
+              child: _buildPracticeCard(
+                title: 'Práctica',
+                subtitle: 'Modo Difícil',
+                gradient: AppGradients.hard.withOpacity(0.7),
+                icon: Icons.school,
+                onTap: () => context.go('/practice/hard'),
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+
+  Widget _buildPracticeCard({
+    required String title,
+    required String subtitle,
+    required LinearGradient gradient,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 24,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

@@ -40,7 +40,7 @@ class SessionRepository {
     return _engine!.nextValidOp();
   }
 
-  bool submitAnswer(int answer) {
+  bool submitAnswer(dynamic answer) {
     if (_engine == null || _currentSession == null) {
       throw StateError('Sesión no iniciada');
     }

@@ -7,6 +7,7 @@ class NumberKeypad extends StatefulWidget {
   final VoidCallback onBackspace;
   final VoidCallback onConfirm;
   final bool isConfirmEnabled;
+  final bool allowDecimals; // Nuevo parámetro para permitir decimales
 
   const NumberKeypad({
     super.key,
@@ -14,6 +15,7 @@ class NumberKeypad extends StatefulWidget {
     required this.onBackspace,
     required this.onConfirm,
     this.isConfirmEnabled = false,
+    this.allowDecimals = false, // Por defecto no permitir decimales
   });
 
   @override
@@ -26,7 +28,7 @@ class _NumberKeypadState extends State<NumberKeypad> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(2),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -35,32 +37,47 @@ class _NumberKeypadState extends State<NumberKeypad> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _numbers.take(3).map((number) => _buildKey(number)).toList(),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           
           // Fila de números 4-6
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _numbers.skip(3).take(3).map((number) => _buildKey(number)).toList(),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           
           // Fila de números 7-9
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _numbers.skip(6).take(3).map((number) => _buildKey(number)).toList(),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           
-          // Fila final: 0, backspace, confirmar
+          // Fila final: backspace, 0 y decimal (centrados), confirmar
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center, // Centrar toda la fila
             children: [
-              _buildKey('0'),
+              // Botón backspace a la izquierda
               _buildActionKey(
                 icon: Icons.backspace_outlined,
                 onPressed: widget.onBackspace,
                 color: AppTheme.errorColor,
               ),
+              
+              const SizedBox(width: 12), // Espacio reducido
+              
+              // 0 y decimal centrados
+              if (widget.allowDecimals) ...[
+                _buildKey('0'),
+                const SizedBox(width: 8),
+                _buildKey('.'),
+              ] else ...[
+                _buildKey('0'),
+              ],
+              
+              const SizedBox(width: 12), // Espacio reducido
+              
+              // Botón confirmar a la derecha
               _buildActionKey(
                 icon: Icons.check,
                 onPressed: widget.isConfirmEnabled ? widget.onConfirm : null,
@@ -185,8 +202,8 @@ class _KeypadButtonState extends State<_KeypadButton>
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
-              width: 64,
-              height: 64,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,

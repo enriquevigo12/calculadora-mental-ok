@@ -310,10 +310,13 @@ class _GameOverSheetState extends State<GameOverSheet> {
       if (success) {
         Haptics.success();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('¡+10 monedas ganadas!')),
+          const SnackBar(content: Text('¡+1 moneda ganada!')),
         );
-        // Recargar datos del wallet
+        // Forzar actualización de la UI para mostrar las nuevas monedas
         setState(() {});
+        // Pequeño delay para asegurar que se guarde el wallet
+        await Future.delayed(const Duration(milliseconds: 100));
+        widget.onContinue();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No se pudo mostrar el anuncio')),

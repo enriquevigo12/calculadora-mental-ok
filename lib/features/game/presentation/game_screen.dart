@@ -14,6 +14,9 @@ import 'package:calculadora_mental/services/storage_service.dart';
 import 'package:calculadora_mental/services/analytics_service.dart';
 import 'package:calculadora_mental/features/game/presentation/game_over_sheet.dart';
 import 'package:confetti/confetti.dart';
+import 'package:calculadora_mental/services/ads_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:async';
 
 class GameScreen extends ConsumerStatefulWidget {
   final String mode;
@@ -36,6 +39,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   bool _isGameOver = false;
   
   late ConfettiController _confettiController;
+  BannerAd? _bannerAd;
+  
+  // Para forzar actualización del wallet
+  int _walletUpdateCounter = 0;
+  
+  // Timer
+  Timer? _timer;
+  int _timeRemaining = 12;
 
   @override
   void initState() {
@@ -45,6 +56,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _settings = GameSettings.fromStorage();
     _confettiController = ConfettiController(duration: const Duration(seconds: 2));
     
+    _loadBannerAd();
     _startGame();
   }
 
@@ -55,6 +67,62 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _isCorrect = false;
     _showFeedback = false;
     _isGameOver = false;
+    _startTimer();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = AdsService.createBannerAd();
+    _bannerAd!.load();
+  }
+
+  void _refreshWallet() {
+    setState(() {
+      _walletUpdateCounter++;
+    });
+  }
+
+  void _startTimer() {
+    _timeRemaining = _settings.timePerOperation;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_timeRemaining > 0) {
+          _timeRemaining--;
+        } else {
+          _timer?.cancel();
+          _handleTimeUp();
+        }
+      });
+    });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+  }
+
+  void _resetTimer() {
+    _stopTimer();
+    _timeRemaining = _settings.timePerOperation;
+  }
+
+  void _handleTimeUp() {
+    if (!_isGameOver) {
+      setState(() {
+        _isGameOver = true;
+      });
+      
+      Haptics.error();
+      _showGameOverSheet();
+    }
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    _bannerAd?.dispose();
+    _sessionRepo.dispose();
+    _timer?.cancel();
+    super.dispose();
   }
 
   void _onNumberPressed(String number) {
@@ -80,7 +148,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   void _onConfirm() {
     if (_isGameOver || _currentInput.isEmpty) return;
     
-    final answer = int.tryParse(_currentInput);
+    dynamic answer;
+    
+    // Intentar parsear como entero primero
+    answer = int.tryParse(_currentInput);
+    
+    // Si no es entero y se permiten decimales, intentar como double
+    if (answer == null && _gameMode == GameMode.easy && _settings.allowDecimals) {
+      answer = double.tryParse(_currentInput);
+    }
+    
     if (answer == null) return;
     
     final isCorrect = _sessionRepo.submitAnswer(answer);
@@ -115,6 +192,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // Siguiente operación
     _currentOperation = _sessionRepo.getNextOperation();
     _currentInput = '';
+    
+    // Resetear timer para la nueva operación
+    _resetTimer();
+    _startTimer();
   }
 
   void _handleIncorrectAnswer() {
@@ -152,7 +233,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     Navigator.of(context).pop();
     setState(() {
       _isGameOver = false;
+      _walletUpdateCounter++; // Forzar actualización del wallet
     });
+    
+    // Resetear timer y continuar
+    _resetTimer();
+    _startTimer();
   }
 
   void _restartGame() {
@@ -172,6 +258,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // Reiniciar la sesión y generar nueva operación
     _sessionRepo.startSession(_gameMode, _settings);
     _currentOperation = _sessionRepo.getNextOperation();
+    
+    // Resetear timer
+    _resetTimer();
+    _startTimer();
   }
 
   void _exitGame() async {
@@ -181,12 +271,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _confettiController.dispose();
-    _sessionRepo.dispose();
-    super.dispose();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +302,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 children: [
                   // Header con stats
                   _buildHeader(session, stats, wallet),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   
                   // Operación actual
                   Expanded(
@@ -226,10 +311,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   
                   // Input del usuario
                   _buildInputDisplay(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   
                   // Keypad
                   _buildKeypad(),
+                  
+                  // Banner ad
+                  if (_bannerAd != null) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      width: _bannerAd!.size.width.toDouble(),
+                      height: _bannerAd!.size.height.toDouble(),
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -254,20 +349,67 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _buildHeader(GameSession session, Stats stats, Wallet wallet) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    // Recargar el wallet para obtener los datos más recientes
+    final currentWallet = StorageService.getWallet();
+    
+    return Column(
       children: [
-        StreakChip(
-          streak: session.streak,
-          bestStreak: _gameMode == GameMode.easy ? stats.bestStreakEasy : stats.bestStreakHard,
-          mode: _gameMode,
+        // Timer
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: _timeRemaining <= 3 ? AppTheme.errorColor : AppColors.cardDark,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _timeRemaining <= 3 ? AppTheme.errorColor : AppColors.textSecondaryDark.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.timer,
+                color: _timeRemaining <= 3 ? Colors.white : AppColors.textPrimaryDark,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '$_timeRemaining',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: _timeRemaining <= 3 ? Colors.white : AppColors.textPrimaryDark,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-        CoinChip(coins: wallet.coins),
-        StatChip(
-          label: 'Continuaciones',
-          value: '${session.continuesUsed}/3',
-          icon: Icons.replay,
-          color: AppColors.accentWarm,
+        const SizedBox(height: 8),
+        
+        // Stats chips
+        Row(
+          children: [
+            Expanded(
+              child: StreakChip(
+                streak: session.streak,
+                bestStreak: _gameMode == GameMode.easy ? stats.bestStreakEasy : stats.bestStreakHard,
+                mode: _gameMode,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: CoinChip(coins: currentWallet.coins),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: StatChip(
+                label: 'Intentos',
+                value: '${session.continuesUsed}/3',
+                icon: Icons.replay,
+                color: AppColors.accentWarm,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -409,6 +551,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       onBackspace: _onBackspace,
       onConfirm: _onConfirm,
       isConfirmEnabled: _currentInput.isNotEmpty && !_isGameOver,
+      allowDecimals: _gameMode == GameMode.easy && _settings.allowDecimals,
     );
   }
 

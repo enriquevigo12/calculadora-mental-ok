@@ -11,6 +11,7 @@ class GameSettings {
   final bool haptics;
   final bool highContrast;
   final bool largeText;
+  final int timePerOperation; // Tiempo en segundos por operación
 
   const GameSettings({
     this.minResult = 0,
@@ -23,6 +24,7 @@ class GameSettings {
     this.haptics = true,
     this.highContrast = false,
     this.largeText = false,
+    this.timePerOperation = 12, // 12 segundos por operación
   });
 
   GameSettings copyWith({
@@ -36,6 +38,7 @@ class GameSettings {
     bool? haptics,
     bool? highContrast,
     bool? largeText,
+    int? timePerOperation,
   }) {
     return GameSettings(
       minResult: minResult ?? this.minResult,
@@ -48,6 +51,7 @@ class GameSettings {
       haptics: haptics ?? this.haptics,
       highContrast: highContrast ?? this.highContrast,
       largeText: largeText ?? this.largeText,
+      timePerOperation: timePerOperation ?? this.timePerOperation,
     );
   }
 

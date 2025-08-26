@@ -208,6 +208,16 @@ class Wallet extends HiveObject {
     if (adCooldownUntil == null) return true;
     return DateTime.now().isAfter(adCooldownUntil!);
   }
+
+  void addCoins(int amount) {
+    coins += amount;
+  }
+
+  void spendCoins(int amount) {
+    if (coins >= amount) {
+      coins -= amount;
+    }
+  }
 }
 
 @HiveType(typeId: 2)

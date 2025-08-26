@@ -8,7 +8,7 @@
     <application
         android:label="Calculadora Mental"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
         
         <activity
@@ -44,7 +44,7 @@
         <!-- Google Mobile Ads -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-3940256099942544~3347511713"/> <!-- TODO: Reemplazar con tu App ID real -->
             
         <!-- TODO: Reemplazar con tu AdMob App ID real -->
         <!-- android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/> -->

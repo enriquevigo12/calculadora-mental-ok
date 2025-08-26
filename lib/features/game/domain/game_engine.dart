@@ -7,7 +7,7 @@ class GameEngine {
   final GameSettings settings;
   final Random _rng;
   
-  int current;
+  dynamic current; // Cambiar a dynamic para soportar decimales
   int streak;
   int continuesUsed;
   StepOp? _last;
@@ -39,13 +39,31 @@ class GameEngine {
     return _last!;
   }
 
-  bool check(int answer) {
+  bool check(dynamic answer) {
     if (_last == null) return false;
     
-    final isCorrect = answer == _last!.expected;
+    bool isCorrect;
+    
+    if (_allowDecimalsInMode) {
+      // En modo fácil con decimales, permitir respuestas decimales
+      if (answer is double) {
+        isCorrect = (answer - _last!.expected).abs() < 0.01; // Tolerancia de 0.01
+      } else if (answer is int) {
+        isCorrect = answer == _last!.expected;
+      } else {
+        isCorrect = false;
+      }
+    } else {
+      // En modo difícil o sin decimales, solo enteros
+      if (answer is int) {
+        isCorrect = answer == _last!.expected;
+      } else {
+        isCorrect = false;
+      }
+    }
     
     if (isCorrect) {
-      current = answer;
+      current = _last!.expected; // Mantener el valor esperado
       streak++;
       
       // Ajustar dificultad dinámica
@@ -78,19 +96,24 @@ class GameEngine {
     }
   }
 
-  int _generateOperand(Op op) {
+  dynamic _generateOperand(Op op) {
     switch (op) {
       case Op.plus:
       case Op.minus:
-        // Operandos 1-9 para suma/resta
-        return _rng.nextInt(9) + 1;
+        if (_allowDecimalsInMode) {
+          // En modo fácil con decimales, generar operandos decimales (0.1 a 2.0)
+          return (_rng.nextInt(20) + 1) / 10.0; // 0.1, 0.2, ..., 2.0
+        } else {
+          // Operandos 1-9 para suma/resta
+          return _rng.nextInt(9) + 1;
+        }
         
       case Op.times:
-        // Operandos 2-9 para multiplicación
+        // Operandos 2-9 para multiplicación (siempre enteros)
         return _rng.nextInt(8) + 2;
         
       case Op.div:
-        // Divisores 2-9 que dividan al valor actual
+        // Divisores 2-9 que dividan al valor actual (siempre enteros)
         final divisors = _divisorsOf(current);
         if (divisors.isEmpty) {
           // Si no hay divisores, fallback a suma pequeña
@@ -100,7 +123,7 @@ class GameEngine {
     }
   }
 
-  int _apply(int value, Op op, int operand) {
+  dynamic _apply(dynamic value, Op op, dynamic operand) {
     switch (op) {
       case Op.plus:
         return value + operand;
@@ -109,23 +132,34 @@ class GameEngine {
       case Op.times:
         return value * operand;
       case Op.div:
-        return value ~/ operand; // División entera
+        if (value is int && operand is int) {
+          return value ~/ operand; // División entera
+        } else {
+          return value / operand; // División con decimales
+        }
     }
   }
 
-  List<int> _divisorsOf(int n) {
+  List<int> _divisorsOf(dynamic n) {
     final divisors = <int>[];
+    final intValue = n is int ? n : n.round();
     for (int i = 2; i <= 9; i++) {
-      if (n % i == 0) {
+      if (intValue % i == 0) {
         divisors.add(i);
       }
     }
     return divisors;
   }
 
-  bool _inRange(int value) {
+  bool _inRange(dynamic value) {
     if (!settings.allowNegatives && value < 0) return false;
     return value >= settings.minResult && value <= settings.maxResult;
+  }
+
+  // Verificar si se permiten decimales según el modo
+  bool get _allowDecimalsInMode {
+    // Solo permitir decimales en modo fácil
+    return mode == GameMode.easy && settings.allowDecimals;
   }
 
   StepOp _generateValidOp() {
@@ -163,11 +197,11 @@ class GameEngine {
     }
   }
 
-  // Obtener coste de continuar (secuencia Fibonacci por sesión)
+  // Obtener coste de continuar (secuencia personalizada: 1, 3, 7)
   int getContinueCost() {
-    final fibonacci = [1, 2, 3, 5, 8, 13];
-    final index = continuesUsed.clamp(0, fibonacci.length - 1);
-    return fibonacci[index];
+    final costs = [1, 3, 7];
+    final index = continuesUsed.clamp(0, costs.length - 1);
+    return costs[index];
   }
 
   // Verificar si se puede continuar
@@ -190,11 +224,12 @@ class GameEngine {
       'continuesUsed': continuesUsed,
       'difficultyLevel': _difficultyLevel,
       'mode': mode.name,
+      'allowDecimals': _allowDecimalsInMode,
     };
   }
 
   @override
   String toString() {
-    return 'GameEngine(mode: $mode, current: $current, streak: $streak, continuesUsed: $continuesUsed)';
+    return 'GameEngine(mode: $mode, current: $current, streak: $streak, continuesUsed: $continuesUsed, allowDecimals: $_allowDecimalsInMode)';
   }
 }

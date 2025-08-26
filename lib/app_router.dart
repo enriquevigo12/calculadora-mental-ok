@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:calculadora_mental/features/home/presentation/home_screen.dart';
 import 'package:calculadora_mental/features/game/presentation/game_screen.dart';
+import 'package:calculadora_mental/features/practice/presentation/practice_screen.dart';
 import 'package:calculadora_mental/features/store/presentation/store_screen.dart';
 import 'package:calculadora_mental/features/settings/presentation/settings_screen.dart';
 import 'package:calculadora_mental/features/stats/presentation/stats_screen.dart';
@@ -36,6 +37,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           return CustomTransitionPage(
             key: state.pageKey,
             child: GameScreen(mode: mode),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: animation.drive(
+                  Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).chain(CurveTween(curve: Curves.easeInOut)),
+                ),
+                child: child,
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/practice/:mode',
+        pageBuilder: (context, state) {
+          final mode = state.pathParameters['mode']!;
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: PracticeScreen(mode: mode),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: animation.drive(

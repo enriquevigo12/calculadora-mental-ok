@@ -6,6 +6,7 @@ import 'package:calculadora_mental/shared/widgets/primary_button.dart';
 import 'package:calculadora_mental/theme/app_theme.dart';
 import 'package:calculadora_mental/shared/utils/haptics.dart';
 import 'package:calculadora_mental/services/storage_service.dart';
+import 'package:calculadora_mental/services/ads_service.dart';
 
 class StoreScreen extends ConsumerStatefulWidget {
   const StoreScreen({super.key});
@@ -18,12 +19,17 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
   final StoreRepository _storeRepo = StoreRepository();
   bool _isLoadingAd = false;
   bool _isLoadingBonus = false;
-  Map<String, bool> _loadingPurchases = {};
+  
+  // Para forzar actualización del wallet
+  int _walletUpdateCounter = 0;
 
   @override
   Widget build(BuildContext context) {
-    final wallet = _storeRepo.getWallet();
-    final products = _storeRepo.getAvailableProducts();
+    // Recargar el wallet para obtener los datos más recientes
+    final wallet = StorageService.getWallet();
+    
+    // Usar _walletUpdateCounter para forzar rebuild cuando cambie
+    final updateCounter = _walletUpdateCounter;
     
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
@@ -42,22 +48,12 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Saldo
-              _buildBalanceCard(wallet),
-              const SizedBox(height: 24),
-              
               // Bono diario
               _buildDailyBonusCard(wallet),
               const SizedBox(height: 24),
               
               // Anuncio recompensado
               _buildRewardedAdCard(wallet),
-              const SizedBox(height: 24),
-              
-              // Productos IAP
-              Expanded(
-                child: _buildProductsList(products),
-              ),
             ],
           ),
         ),
@@ -65,59 +61,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
     );
   }
 
-  Widget _buildBalanceCard(Wallet wallet) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.coinColor,
-            AppTheme.coinColor.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.coinColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.monetization_on,
-            color: Colors.white,
-            size: 32,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Saldo actual',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Colors.white70,
-                  ),
-                ),
-                Text(
-                  '${wallet.coins} monedas',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildDailyBonusCard(Wallet wallet) {
     final canClaim = _storeRepo.canClaimDailyBonus();
@@ -211,7 +155,9 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
   }
 
   Widget _buildRewardedAdCard(Wallet wallet) {
-    final canWatch = _storeRepo.canWatchAd();
+    // Recargar el estado del anuncio para obtener datos actualizados
+    final currentWallet = StorageService.getWallet();
+    final canWatch = currentWallet.canWatchAd();
     final cooldown = _storeRepo.getAdCooldownRemaining();
     
     return Container(
@@ -299,101 +245,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
     );
   }
 
-  Widget _buildProductsList(List<Map<String, dynamic>> products) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Comprar Monedas',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimaryDark,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              final product = products[index];
-              final isLoading = _loadingPurchases[product['id']] ?? false;
-              
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.cardDark,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppTheme.coinColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.monetization_on,
-                        color: AppTheme.coinColor,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            product['title'] ?? 'Monedas',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            '${product['coins']} monedas',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.coinColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          product['price'] ?? '',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        PrimaryButton(
-                          text: isLoading ? '' : 'Comprar',
-                          onPressed: isLoading ? null : () => _purchaseProduct(product['id']),
-                          isLoading: isLoading,
-                          backgroundColor: AppTheme.coinColor,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+
 
   Future<void> _claimDailyBonus() async {
     setState(() {
@@ -425,16 +277,29 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
     });
     
     try {
-      final success = await _storeRepo.watchRewardedAd();
+      // Usar AdsService directamente para actualización inmediata
+      final success = await AdsService.showRewardedAd();
       if (success) {
         Haptics.success();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('¡+10 monedas ganadas!'),
+            content: Text('¡+1 moneda ganada!'),
             backgroundColor: AppTheme.successColor,
           ),
         );
-        setState(() {});
+        
+        // Forzar actualización inmediata del wallet
+        setState(() {
+          _walletUpdateCounter++;
+        });
+        
+        // Pequeño delay adicional para asegurar que se guarde
+        await Future.delayed(const Duration(milliseconds: 50));
+        
+        // Segunda actualización para asegurar que se muestre
+        setState(() {
+          _walletUpdateCounter++;
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -450,36 +315,7 @@ class _StoreScreenState extends ConsumerState<StoreScreen> {
     }
   }
 
-  Future<void> _purchaseProduct(String productId) async {
-    setState(() {
-      _loadingPurchases[productId] = true;
-    });
-    
-    try {
-      final success = await _storeRepo.purchaseCoins(productId);
-      if (success) {
-        Haptics.success();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('¡Compra exitosa!'),
-            backgroundColor: AppTheme.successColor,
-          ),
-        );
-        setState(() {});
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error en la compra'),
-            backgroundColor: AppTheme.errorColor,
-          ),
-        );
-      }
-    } finally {
-      setState(() {
-        _loadingPurchases[productId] = false;
-      });
-    }
-  }
+
 
   String _formatCooldown(Duration duration) {
     final minutes = duration.inMinutes;

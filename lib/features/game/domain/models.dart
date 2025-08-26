@@ -4,8 +4,8 @@ enum Op { plus, minus, times, div }
 
 class StepOp {
   final Op op;
-  final int operand;
-  final int expected;
+  final dynamic operand; // Cambiar a dynamic para soportar decimales
+  final dynamic expected; // Cambiar a dynamic para soportar decimales
 
   const StepOp({
     required this.op,
@@ -14,15 +14,16 @@ class StepOp {
   });
 
   String get displayText {
+    final operandText = operand is double ? operand.toStringAsFixed(1) : operand.toString();
     switch (op) {
       case Op.plus:
-        return '+ $operand';
+        return '+ $operandText';
       case Op.minus:
-        return '- $operand';
+        return '- $operandText';
       case Op.times:
-        return '× $operand';
+        return '× $operandText';
       case Op.div:
-        return '÷ $operand';
+        return '÷ $operandText';
     }
   }
 
