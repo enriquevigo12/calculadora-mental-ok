@@ -1,6 +1,6 @@
 import 'dart:math';
-import 'package:calculadora_mental/features/game/domain/models.dart';
-import 'package:calculadora_mental/features/game/domain/game_settings.dart';
+import 'package:reto_matematico/features/game/domain/models.dart';
+import 'package:reto_matematico/features/game/domain/game_settings.dart';
 
 class GameEngine {
   final GameMode mode;

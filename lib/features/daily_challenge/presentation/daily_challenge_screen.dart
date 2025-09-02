@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:calculadora_mental/features/game/domain/models.dart';
-import 'package:calculadora_mental/services/daily_challenge_service.dart';
-import 'package:calculadora_mental/services/storage_service.dart';
-import 'package:calculadora_mental/theme/app_theme.dart';
-import 'package:calculadora_mental/shared/widgets/number_keypad.dart';
-import 'package:calculadora_mental/shared/utils/haptics.dart';
+import 'package:reto_matematico/features/game/domain/models.dart';
+import 'package:reto_matematico/services/daily_challenge_service.dart';
+import 'package:reto_matematico/services/storage_service.dart';
+import 'package:reto_matematico/theme/app_theme.dart';
+import 'package:reto_matematico/shared/widgets/number_keypad.dart';
+import 'package:reto_matematico/shared/utils/haptics.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math';
 

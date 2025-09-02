@@ -1,11 +1,11 @@
-# 🚀 Configuración para Producción - Calculadora Mental
+# 🚀 Configuración para Producción - Reto Matemático
 
 ## 📱 **Configuración de AdMob**
 
 ### **1. Crear cuenta en AdMob**
 1. Ve a [https://admob.google.com/](https://admob.google.com/)
 2. Crea una cuenta nueva
-3. Crea una nueva app: "Calculadora Mental"
+3. Crea una nueva app: "Reto Matemático"
 
 ### **2. Obtener App IDs**
 Después de crear la app, obtendrás:
@@ -52,7 +52,7 @@ static const String _iosBannerAdUnitId = 'ca-app-pub-xxxxxxxxxxxxxxxx/bbbbbbbbbb
 ### **1. Crear app en App Store Connect**
 1. Ve a [https://appstoreconnect.apple.com/](https://appstoreconnect.apple.com/)
 2. Crea una nueva app
-3. Bundle ID: `com.tudominio.calculadoraMental`
+3. Bundle ID: `com.tudominio.retoMatematico`
 
 ### **2. Configurar In-App Purchases**
 Crea los siguientes productos:
@@ -70,7 +70,7 @@ Crea los siguientes productos:
 ### **1. Crear app en Google Play Console**
 1. Ve a [https://play.google.com/console/](https://play.google.com/console/)
 2. Crea una nueva app
-3. Package name: `com.tudominio.calculadoraMental`
+3. Package name: `com.tudominio.retoMatematico`
 
 ### **2. Configurar In-App Products**
 Crea los mismos productos que en iOS:
@@ -88,7 +88,7 @@ Crea los mismos productos que en iOS:
 ### **1. Versión de la app**
 En `pubspec.yaml`:
 ```yaml
-version: 1.0.0+1
+version: 1.1.0+2
 ```
 
 ### **2. Icono de la app**

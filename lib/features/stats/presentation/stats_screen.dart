@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:calculadora_mental/services/storage_service.dart';
-import 'package:calculadora_mental/theme/app_theme.dart';
-import 'package:calculadora_mental/shared/widgets/stat_chip.dart';
-import 'package:calculadora_mental/features/game/domain/models.dart';
+import 'package:reto_matematico/services/storage_service.dart';
+import 'package:reto_matematico/theme/app_theme.dart';
+import 'package:reto_matematico/shared/widgets/stat_chip.dart';
+import 'package:reto_matematico/features/game/domain/models.dart';
 
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});

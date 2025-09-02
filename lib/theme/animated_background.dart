@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:calculadora_mental/theme/app_theme.dart';
+import 'package:reto_matematico/theme/app_theme.dart';
 
 class AnimatedBackground extends StatefulWidget {
   final Widget child;

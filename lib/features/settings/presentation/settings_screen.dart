@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:calculadora_mental/features/game/domain/game_settings.dart';
-import 'package:calculadora_mental/shared/widgets/primary_button.dart';
-import 'package:calculadora_mental/theme/app_theme.dart';
-import 'package:calculadora_mental/theme/theme_provider.dart';
-import 'package:calculadora_mental/services/storage_service.dart';
-import 'package:calculadora_mental/services/consent_service.dart';
+import 'package:reto_matematico/features/game/domain/game_settings.dart';
+import 'package:reto_matematico/shared/widgets/primary_button.dart';
+import 'package:reto_matematico/theme/app_theme.dart';
+import 'package:reto_matematico/theme/theme_provider.dart';
+import 'package:reto_matematico/services/storage_service.dart';
+import 'package:reto_matematico/services/consent_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});

@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:calculadora_mental/app_router.dart';
-import 'package:calculadora_mental/theme/app_theme.dart';
-import 'package:calculadora_mental/theme/theme_provider.dart';
-import 'package:calculadora_mental/services/storage_service.dart';
-import 'package:calculadora_mental/services/consent_service.dart';
+import 'package:reto_matematico/app_router.dart';
+import 'package:reto_matematico/theme/app_theme.dart';
+import 'package:reto_matematico/theme/theme_provider.dart';
+import 'package:reto_matematico/services/storage_service.dart';
+import 'package:reto_matematico/services/consent_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

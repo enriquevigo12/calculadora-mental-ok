@@ -6,7 +6,7 @@
     
     <!-- Para debug: permitir tráfico cleartext -->
     <application
-        android:label="Calculadora Mental"
+        android:label="Reto Matemático"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:calculadora_mental/features/game/domain/models.dart';
-import 'package:calculadora_mental/features/game/domain/game_settings.dart';
-import 'package:calculadora_mental/features/game/domain/game_engine.dart';
-import 'package:calculadora_mental/shared/widgets/number_keypad.dart';
-import 'package:calculadora_mental/shared/utils/haptics.dart';
-import 'package:calculadora_mental/theme/app_theme.dart';
+import 'package:reto_matematico/features/game/domain/models.dart';
+import 'package:reto_matematico/features/game/domain/game_settings.dart';
+import 'package:reto_matematico/features/game/domain/game_engine.dart';
+import 'package:reto_matematico/shared/widgets/number_keypad.dart';
+import 'package:reto_matematico/shared/utils/haptics.dart';
+import 'package:reto_matematico/theme/app_theme.dart';
 
 class PracticeScreen extends ConsumerStatefulWidget {
   final String mode;

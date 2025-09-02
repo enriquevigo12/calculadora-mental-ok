@@ -1,6 +1,6 @@
-import 'package:calculadora_mental/services/storage_service.dart';
-import 'package:calculadora_mental/services/ads_service.dart';
-import 'package:calculadora_mental/services/analytics_service.dart';
+import 'package:reto_matematico/services/storage_service.dart';
+import 'package:reto_matematico/services/ads_service.dart';
+import 'package:reto_matematico/services/analytics_service.dart';
 
 class WalletRepository {
   Wallet getWallet() {
