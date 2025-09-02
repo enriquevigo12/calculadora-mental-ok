@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:calculadora_mental/features/game/domain/models.dart';
 import 'package:calculadora_mental/features/store/domain/wallet.dart';
@@ -92,6 +93,43 @@ class StorageService {
   static Future<void> savePurchases(Purchases purchases) async {
     final box = Hive.box<Purchases>(_purchasesBox);
     await box.put('purchases', purchases);
+  }
+
+  // Daily Challenge Stats
+  static Future<DailyChallengeStats> getDailyChallengeStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentStreak = prefs.getInt('daily_challenge_current_streak') ?? 0;
+    final bestStreak = prefs.getInt('daily_challenge_best_streak') ?? 0;
+    final totalCompleted = prefs.getInt('daily_challenge_total_completed') ?? 0;
+    final totalCoinsEarned = prefs.getInt('daily_challenge_total_coins_earned') ?? 0;
+    final lastCompletedDateString = prefs.getString('daily_challenge_last_completed_date');
+
+    if (lastCompletedDateString == null) {
+      return DailyChallengeStats(
+        currentStreak: 0,
+        bestStreak: 0,
+        totalCompleted: 0,
+        totalCoinsEarned: 0,
+        lastCompletedDate: DateTime.now().subtract(const Duration(days: 1)),
+      );
+    }
+    
+    return DailyChallengeStats(
+      currentStreak: currentStreak,
+      bestStreak: bestStreak,
+      totalCompleted: totalCompleted,
+      totalCoinsEarned: totalCoinsEarned,
+      lastCompletedDate: DateTime.parse(lastCompletedDateString),
+    );
+  }
+
+  static Future<void> saveDailyChallengeStats(DailyChallengeStats dailyStats) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('daily_challenge_current_streak', dailyStats.currentStreak);
+    await prefs.setInt('daily_challenge_best_streak', dailyStats.bestStreak);
+    await prefs.setInt('daily_challenge_total_completed', dailyStats.totalCompleted);
+    await prefs.setInt('daily_challenge_total_coins_earned', dailyStats.totalCoinsEarned);
+    await prefs.setString('daily_challenge_last_completed_date', dailyStats.lastCompletedDate.toIso8601String());
   }
 
   // Métodos de conveniencia
@@ -217,6 +255,19 @@ class Wallet extends HiveObject {
     if (coins >= amount) {
       coins -= amount;
     }
+  }
+
+  Wallet copyWith({
+    int? coins,
+    DateTime? lastDailyBonusAt,
+    DateTime? adCooldownUntil,
+    int? dailyBonusStreak,
+  }) {
+    return Wallet()
+      ..coins = coins ?? this.coins
+      ..lastDailyBonusAt = lastDailyBonusAt ?? this.lastDailyBonusAt
+      ..adCooldownUntil = adCooldownUntil ?? this.adCooldownUntil
+      ..dailyBonusStreak = dailyBonusStreak ?? this.dailyBonusStreak;
   }
 }
 

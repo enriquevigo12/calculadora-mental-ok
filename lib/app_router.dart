@@ -7,6 +7,7 @@ import 'package:calculadora_mental/features/practice/presentation/practice_scree
 import 'package:calculadora_mental/features/store/presentation/store_screen.dart';
 import 'package:calculadora_mental/features/settings/presentation/settings_screen.dart';
 import 'package:calculadora_mental/features/stats/presentation/stats_screen.dart';
+import 'package:calculadora_mental/features/daily_challenge/presentation/daily_challenge_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -113,6 +114,24 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => CustomTransitionPage(
           key: state.pageKey,
           child: const StatsScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: animation.drive(
+                Tween<Offset>(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).chain(CurveTween(curve: Curves.easeInOut)),
+              ),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/daily-challenge',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: const DailyChallengeScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
               position: animation.drive(

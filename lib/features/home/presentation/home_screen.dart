@@ -240,60 +240,94 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildDailyChallengeStreak() {
-    // Por ahora usamos un valor falso, después se puede conectar con el sistema real
-    final daysStreak = 7; // Días seguidos completando el reto
-    
-    // Detectar tamaño de pantalla para hacer el contador responsive
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
-    final isVerySmallScreen = screenHeight < 600;
-    
-    final padding = isVerySmallScreen ? 10.0 : (isSmallScreen ? 12.0 : 14.0);
-    final iconSize = isVerySmallScreen ? 14.0 : (isSmallScreen ? 16.0 : 18.0);
-    final fontSize = isVerySmallScreen ? 11.0 : (isSmallScreen ? 12.0 : 13.0);
-    final borderRadius = isVerySmallScreen ? 12.0 : (isSmallScreen ? 14.0 : 16.0);
-    
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: padding, vertical: padding * 0.5),
-      decoration: BoxDecoration(
-        color: AppColors.cardDark.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: AppColors.accentWarm.withOpacity(0.5),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.local_fire_department,
-            color: AppColors.accentWarm,
-            size: iconSize,
-          ),
-          SizedBox(width: padding * 0.3),
-          Text(
-            '$daysStreak días',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.textPrimaryDark,
-              fontWeight: FontWeight.w600,
-              fontSize: fontSize,
+    return FutureBuilder<DailyChallengeStats>(
+      future: StorageService.getDailyChallengeStats(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.cardDark.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.accentWarm.withOpacity(0.5),
+                width: 1,
+              ),
             ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 800.ms).slideY(
-          begin: 0.2,
-          duration: 800.ms,
-          curve: Curves.easeOutCubic,
+            child: const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentWarm),
+              ),
+            ),
+          );
+        }
+
+        final stats = snapshot.data ?? DailyChallengeStats(
+          currentStreak: 0,
+          bestStreak: 0,
+          totalCompleted: 0,
+          totalCoinsEarned: 0,
+          lastCompletedDate: DateTime.now().subtract(const Duration(days: 1)),
         );
+        
+        final daysStreak = stats.currentStreak;
+        
+        // Detectar tamaño de pantalla para hacer el contador responsive
+        final screenHeight = MediaQuery.of(context).size.height;
+        final isSmallScreen = screenHeight < 700;
+        final isVerySmallScreen = screenHeight < 600;
+        
+        final padding = isVerySmallScreen ? 10.0 : (isSmallScreen ? 12.0 : 14.0);
+        final iconSize = isVerySmallScreen ? 14.0 : (isSmallScreen ? 16.0 : 18.0);
+        final fontSize = isVerySmallScreen ? 11.0 : (isSmallScreen ? 12.0 : 13.0);
+        final borderRadius = isVerySmallScreen ? 12.0 : (isSmallScreen ? 14.0 : 16.0);
+        
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: padding, vertical: padding * 0.5),
+          decoration: BoxDecoration(
+            color: AppColors.cardDark.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: Border.all(
+              color: AppColors.accentWarm.withOpacity(0.5),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.local_fire_department,
+                color: AppColors.accentWarm,
+                size: iconSize,
+              ),
+              SizedBox(width: padding * 0.3),
+              Text(
+                '$daysStreak días',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.textPrimaryDark,
+                  fontWeight: FontWeight.w600,
+                  fontSize: fontSize,
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(duration: 800.ms).slideY(
+              begin: 0.2,
+              duration: 800.ms,
+              curve: Curves.easeOutCubic,
+            );
+      },
+    );
   }
 
   Widget _buildDailyChallengeButton({double size = 90}) {
@@ -322,13 +356,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // Por ahora no hace nada, solo visual
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('¡Función de reto diario próximamente!'),
-                duration: Duration(seconds: 2),
-              ),
-            );
+            // Navegar a la pantalla del reto diario
+            context.go('/daily-challenge');
           },
           borderRadius: BorderRadius.circular(size / 2),
           child: Container(
