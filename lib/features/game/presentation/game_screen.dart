@@ -281,14 +281,29 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final stats = StorageService.getStats();
     final wallet = StorageService.getWallet();
     
+    // Detectar tamaño de pantalla usando MediaQuery
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700;
+    final isVerySmallScreen = screenHeight < 600;
+    final isNarrowScreen = screenWidth < 400;
+    
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       appBar: AppBar(
-        title: Text('Modo ${_gameMode == GameMode.easy ? 'Fácil' : 'Difícil'}'),
+        title: Text(
+          'Modo ${_gameMode == GameMode.easy ? 'Fácil' : 'Difícil'}',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 20 : 24,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(
+            Icons.arrow_back,
+            size: isSmallScreen ? 20 : 24,
+          ),
           onPressed: _showPauseMenu,
         ),
         actions: [],
@@ -296,37 +311,48 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       body: Stack(
         children: [
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Header con stats
-                  _buildHeader(session, stats, wallet),
-                  const SizedBox(height: 12),
-                  
-                  // Operación actual
-                  Expanded(
-                    child: _buildOperationDisplay(),
-                  ),
-                  
-                  // Input del usuario
-                  _buildInputDisplay(),
-                  const SizedBox(height: 12),
-                  
-                  // Keypad
-                  _buildKeypad(),
-                  
-                  // Banner ad
-                  if (_bannerAd != null) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      width: _bannerAd!.size.width.toDouble(),
-                      height: _bannerAd!.size.height.toDouble(),
-                      child: AdWidget(ad: _bannerAd!),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - 32, // 32 para el padding
                     ),
-                  ],
-                ],
-              ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          // Header con stats
+                          _buildHeader(session, stats, wallet, isSmallScreen, isVerySmallScreen),
+                          SizedBox(height: isSmallScreen ? 12 : 16),
+                          
+                          // Operación actual
+                          Expanded(
+                            child: _buildOperationDisplay(isSmallScreen, isVerySmallScreen),
+                          ),
+                          
+                          // Input del usuario
+                          _buildInputDisplay(isSmallScreen),
+                          SizedBox(height: isSmallScreen ? 12 : 16),
+                          
+                          // Keypad
+                          _buildKeypad(isSmallScreen, isVerySmallScreen),
+                          
+                          // Banner ad
+                          if (_bannerAd != null) ...[
+                            SizedBox(height: isSmallScreen ? 12 : 16),
+                            Container(
+                              width: _bannerAd!.size.width.toDouble(),
+                              height: _bannerAd!.size.height.toDouble(),
+                              child: AdWidget(ad: _bannerAd!),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           
@@ -348,7 +374,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildHeader(GameSession session, Stats stats, Wallet wallet) {
+  Widget _buildHeader(GameSession session, Stats stats, Wallet wallet, bool isSmallScreen, bool isVerySmallScreen) {
     // Recargar el wallet para obtener los datos más recientes
     final currentWallet = StorageService.getWallet();
     
@@ -356,7 +382,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       children: [
         // Timer
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 10 : 12, 
+            vertical: isSmallScreen ? 4 : 6
+          ),
           decoration: BoxDecoration(
             color: _timeRemaining <= 3 ? AppTheme.errorColor : AppColors.cardDark,
             borderRadius: BorderRadius.circular(16),
@@ -371,20 +400,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               Icon(
                 Icons.timer,
                 color: _timeRemaining <= 3 ? Colors.white : AppColors.textPrimaryDark,
-                size: 16,
+                size: isSmallScreen ? 14 : 16,
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: isSmallScreen ? 4 : 6),
               Text(
                 '$_timeRemaining',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: _timeRemaining <= 3 ? Colors.white : AppColors.textPrimaryDark,
                   fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 14 : null,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: isSmallScreen ? 12 : 16),
         
         // Stats chips
         Row(
@@ -394,19 +424,24 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 streak: session.streak,
                 bestStreak: _gameMode == GameMode.easy ? stats.bestStreakEasy : stats.bestStreakHard,
                 mode: _gameMode,
+                isSmallScreen: isSmallScreen,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: isSmallScreen ? 8 : 12),
             Expanded(
-              child: CoinChip(coins: currentWallet.coins),
+              child: CoinChip(
+                coins: currentWallet.coins,
+                isSmallScreen: isSmallScreen,
+              ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: isSmallScreen ? 8 : 12),
             Expanded(
               child: StatChip(
                 label: 'Intentos',
                 value: '${session.continuesUsed}/3',
                 icon: Icons.replay,
                 color: AppColors.accentWarm,
+                isSmallScreen: isSmallScreen,
               ),
             ),
           ],
@@ -415,7 +450,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildOperationDisplay() {
+  Widget _buildOperationDisplay(bool isSmallScreen, bool isVerySmallScreen) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -426,14 +461,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppColors.textSecondaryDark,
                 fontWeight: FontWeight.w600,
+                fontSize: isVerySmallScreen ? 18 : (isSmallScreen ? 20 : null),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: isSmallScreen ? 6 : 8),
             Text(
               _sessionRepo.engine?.current.toString() ?? '0',
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                fontSize: 48,
+                fontSize: isVerySmallScreen ? 36 : (isSmallScreen ? 42 : 48),
                 color: _gameMode == GameMode.easy ? AppColors.easyPrimary : AppColors.hardPrimary,
                 shadows: [
                   Shadow(
@@ -444,15 +480,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: isVerySmallScreen ? 16 : (isSmallScreen ? 20 : 24)),
             Text(
               'Aplicar operación:',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppColors.textSecondaryDark,
                 fontWeight: FontWeight.w600,
+                fontSize: isVerySmallScreen ? 18 : (isSmallScreen ? 20 : null),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: isSmallScreen ? 12 : 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -460,16 +497,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   _sessionRepo.engine?.current.toString() ?? '0',
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 32,
+                    fontSize: isVerySmallScreen ? 24 : (isSmallScreen ? 28 : 32),
                     color: AppColors.textPrimaryDark,
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: isSmallScreen ? 6 : 8),
                 Text(
                   _currentOperation!.displayText,
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 36,
+                    fontSize: isVerySmallScreen ? 28 : (isSmallScreen ? 32 : 36),
                     color: AppColors.textPrimaryDark,
                     shadows: [
                       Shadow(
@@ -480,12 +517,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: isSmallScreen ? 6 : 8),
                 Text(
                   '= ?',
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    fontSize: 32,
+                    fontSize: isVerySmallScreen ? 24 : (isSmallScreen ? 28 : 32),
                     color: AppColors.textPrimaryDark,
                   ),
                 ),
@@ -497,14 +534,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  Widget _buildInputDisplay() {
+  Widget _buildInputDisplay(bool isSmallScreen) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       decoration: BoxDecoration(
         color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.easyPrimary.withOpacity(0.3),
+          color: _showFeedback 
+            ? (_isCorrect ? AppColors.success : AppTheme.errorColor)
+            : AppColors.textSecondaryDark.withOpacity(0.3),
           width: 2,
         ),
         boxShadow: [
@@ -519,23 +558,30 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         children: [
           Text(
             'Nuevo valor: ',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: AppColors.textSecondaryDark,
+              fontSize: isSmallScreen ? 16 : null,
             ),
           ),
           Expanded(
-                          child: Text(
-                _currentInput.isEmpty ? '0' : _currentInput,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 32,
-                  color: _showFeedback 
-                      ? (_isCorrect ? AppColors.success : AppColors.error)
-                      : AppColors.textPrimaryDark,
-                ),
+            child: Text(
+              _currentInput.isEmpty ? '0' : _currentInput,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: _showFeedback 
+                    ? (_isCorrect ? AppColors.success : AppColors.error)
+                    : AppColors.textPrimaryDark,
+                fontWeight: FontWeight.bold,
+                fontSize: isSmallScreen ? 18 : null,
               ),
+            ),
           ),
+          if (_showFeedback) ...[
+            Icon(
+              _isCorrect ? Icons.check_circle : Icons.cancel,
+              color: _isCorrect ? AppColors.success : AppTheme.errorColor,
+              size: isSmallScreen ? 20 : 24,
+            ),
+          ],
         ],
       ),
     ).animate().scale(
@@ -545,13 +591,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         );
   }
 
-  Widget _buildKeypad() {
+  Widget _buildKeypad(bool isSmallScreen, bool isVerySmallScreen) {
     return NumberKeypad(
       onNumberPressed: _onNumberPressed,
       onBackspace: _onBackspace,
       onConfirm: _onConfirm,
       isConfirmEnabled: _currentInput.isNotEmpty && !_isGameOver,
       allowDecimals: _gameMode == GameMode.easy && _settings.allowDecimals,
+      isSmallScreen: isSmallScreen,
+      isVerySmallScreen: isVerySmallScreen,
     );
   }
 

@@ -44,9 +44,6 @@
         <!-- Google Mobile Ads -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/> <!-- TODO: Reemplazar con tu App ID real -->
-            
-        <!-- TODO: Reemplazar con tu AdMob App ID real -->
-        <!-- android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/> -->
+            android:value="ca-app-pub-3940256099942544~3347511713"/> <!-- TODO: Reemplazar con tu App ID real de AdMob -->
     </application>
 </manifest>

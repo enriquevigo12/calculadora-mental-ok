@@ -10,6 +10,7 @@ class StatChip extends StatelessWidget {
   final IconData? icon;
   final Color? color;
   final bool isHighlighted;
+  final bool isSmallScreen; // Nuevo parámetro para pantallas pequeñas
 
   const StatChip({
     super.key,
@@ -18,6 +19,7 @@ class StatChip extends StatelessWidget {
     this.icon,
     this.color,
     this.isHighlighted = false,
+    this.isSmallScreen = false,
   });
 
   @override
@@ -26,7 +28,10 @@ class StatChip extends StatelessWidget {
     final chipColor = color ?? AppTheme.easyModeColor;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 12 : 16, 
+        vertical: isSmallScreen ? 12 : 16
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: AppColors.cardDark,
@@ -50,16 +55,16 @@ class StatChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-                              Text(
-                  label,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondaryDark,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 11,
-                  ),
-                  textAlign: TextAlign.center,
+              Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondaryDark,
+                  fontWeight: FontWeight.w500,
+                  fontSize: isSmallScreen ? 10 : 11,
                 ),
-              const SizedBox(height: 4),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: isSmallScreen ? 3 : 4),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -67,17 +72,19 @@ class StatChip extends StatelessWidget {
                   if (icon != null) ...[
                     Icon(
                       icon,
-                      size: 18,
+                      size: isSmallScreen ? 16 : 18,
                       color: chipColor,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: isSmallScreen ? 3 : 4),
                   ],
                   Text(
                     value,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: AppColors.textPrimaryDark,
                       fontWeight: FontWeight.bold,
-                      fontSize: isHighlighted ? 18 : 16,
+                      fontSize: isSmallScreen 
+                        ? (isHighlighted ? 16 : 14) 
+                        : (isHighlighted ? 18 : 16),
                     ),
                   ),
                 ],
@@ -98,12 +105,14 @@ class StreakChip extends StatelessWidget {
   final int streak;
   final int bestStreak;
   final GameMode mode;
+  final bool isSmallScreen; // Nuevo parámetro para pantallas pequeñas
 
   const StreakChip({
     super.key,
     required this.streak,
     required this.bestStreak,
     required this.mode,
+    this.isSmallScreen = false,
   });
 
   @override
@@ -117,6 +126,7 @@ class StreakChip extends StatelessWidget {
       icon: Icons.local_fire_department,
       color: color,
       isHighlighted: isNewRecord,
+      isSmallScreen: isSmallScreen,
     );
   }
 }
@@ -124,11 +134,13 @@ class StreakChip extends StatelessWidget {
 class RecordChip extends StatelessWidget {
   final int bestStreak;
   final GameMode mode;
+  final bool isSmallScreen; // Nuevo parámetro para pantallas pequeñas
 
   const RecordChip({
     super.key,
     required this.bestStreak,
     required this.mode,
+    this.isSmallScreen = false,
   });
 
   @override
@@ -140,16 +152,19 @@ class RecordChip extends StatelessWidget {
       value: bestStreak.toString(),
       icon: Icons.emoji_events,
       color: color,
+      isSmallScreen: isSmallScreen,
     );
   }
 }
 
 class CoinChip extends StatelessWidget {
   final int coins;
+  final bool isSmallScreen; // Nuevo parámetro para pantallas pequeñas
 
   const CoinChip({
     super.key,
     required this.coins,
+    this.isSmallScreen = false,
   });
 
   @override
@@ -159,6 +174,7 @@ class CoinChip extends StatelessWidget {
       value: coins.toString(),
       icon: Icons.monetization_on,
       color: AppTheme.coinColor,
+      isSmallScreen: isSmallScreen,
     );
   }
 }

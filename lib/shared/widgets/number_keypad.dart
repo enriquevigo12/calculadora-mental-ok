@@ -8,6 +8,8 @@ class NumberKeypad extends StatefulWidget {
   final VoidCallback onConfirm;
   final bool isConfirmEnabled;
   final bool allowDecimals; // Nuevo parámetro para permitir decimales
+  final bool isSmallScreen; // Nuevo parámetro para pantallas pequeñas
+  final bool isVerySmallScreen; // Nuevo parámetro para pantallas muy pequeñas
 
   const NumberKeypad({
     super.key,
@@ -16,6 +18,8 @@ class NumberKeypad extends StatefulWidget {
     required this.onConfirm,
     this.isConfirmEnabled = false,
     this.allowDecimals = false, // Por defecto no permitir decimales
+    this.isSmallScreen = false,
+    this.isVerySmallScreen = false,
   });
 
   @override
@@ -27,8 +31,11 @@ class _NumberKeypadState extends State<NumberKeypad> {
 
   @override
   Widget build(BuildContext context) {
+    final buttonSpacing = widget.isVerySmallScreen ? 1.0 : (widget.isSmallScreen ? 1.5 : 2.0);
+    final rowSpacing = widget.isVerySmallScreen ? 1.0 : (widget.isSmallScreen ? 1.5 : 2.0);
+    
     return Container(
-      padding: const EdgeInsets.all(2),
+      padding: EdgeInsets.all(buttonSpacing),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -37,21 +44,21 @@ class _NumberKeypadState extends State<NumberKeypad> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _numbers.take(3).map((number) => _buildKey(number)).toList(),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: rowSpacing),
           
           // Fila de números 4-6
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _numbers.skip(3).take(3).map((number) => _buildKey(number)).toList(),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: rowSpacing),
           
           // Fila de números 7-9
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _numbers.skip(6).take(3).map((number) => _buildKey(number)).toList(),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: rowSpacing),
           
           // Fila final: backspace, 0 y decimal (centrados), confirmar
           Row(
@@ -64,18 +71,18 @@ class _NumberKeypadState extends State<NumberKeypad> {
                 color: AppTheme.errorColor,
               ),
               
-              const SizedBox(width: 12), // Espacio reducido
+              SizedBox(width: widget.isSmallScreen ? 8 : 12), // Espacio reducido
               
               // 0 y decimal centrados
               if (widget.allowDecimals) ...[
                 _buildKey('0'),
-                const SizedBox(width: 8),
+                SizedBox(width: widget.isSmallScreen ? 6 : 8),
                 _buildKey('.'),
               ] else ...[
                 _buildKey('0'),
               ],
               
-              const SizedBox(width: 12), // Espacio reducido
+              SizedBox(width: widget.isSmallScreen ? 8 : 12), // Espacio reducido
               
               // Botón confirmar a la derecha
               _buildActionKey(
@@ -94,8 +101,8 @@ class _NumberKeypadState extends State<NumberKeypad> {
     return _KeypadButton(
       child: Text(
         number,
-        style: const TextStyle(
-          fontSize: 28,
+        style: TextStyle(
+          fontSize: widget.isVerySmallScreen ? 22 : (widget.isSmallScreen ? 24 : 28),
           fontWeight: FontWeight.bold,
           color: Colors.white,
           shadows: [
@@ -108,6 +115,8 @@ class _NumberKeypadState extends State<NumberKeypad> {
         ),
       ),
       onPressed: () => widget.onNumberPressed(number),
+      isSmallScreen: widget.isSmallScreen,
+      isVerySmallScreen: widget.isVerySmallScreen,
     );
   }
 
@@ -119,11 +128,13 @@ class _NumberKeypadState extends State<NumberKeypad> {
     return _KeypadButton(
       child: Icon(
         icon,
-        size: 28,
+        size: widget.isVerySmallScreen ? 22 : (widget.isSmallScreen ? 24 : 28),
         color: Colors.white,
       ),
       onPressed: onPressed,
       backgroundColor: color,
+      isSmallScreen: widget.isSmallScreen,
+      isVerySmallScreen: widget.isVerySmallScreen,
     );
   }
 }
@@ -132,11 +143,15 @@ class _KeypadButton extends StatefulWidget {
   final Widget child;
   final VoidCallback? onPressed;
   final Color? backgroundColor;
+  final bool isSmallScreen;
+  final bool isVerySmallScreen;
 
   const _KeypadButton({
     required this.child,
     this.onPressed,
     this.backgroundColor,
+    this.isSmallScreen = false,
+    this.isVerySmallScreen = false,
   });
 
   @override
@@ -191,6 +206,10 @@ class _KeypadButtonState extends State<_KeypadButton>
   Widget build(BuildContext context) {
     final isEnabled = widget.onPressed != null;
     final backgroundColor = widget.backgroundColor ?? AppColors.easyPrimary;
+    
+    // Calcular tamaño del botón según la pantalla
+    final buttonSize = widget.isVerySmallScreen ? 44.0 : (widget.isSmallScreen ? 48.0 : 52.0);
+    final borderRadius = widget.isVerySmallScreen ? 16.0 : (widget.isSmallScreen ? 18.0 : 20.0);
 
     return GestureDetector(
       onTapDown: isEnabled ? _onTapDown : null,
@@ -202,8 +221,8 @@ class _KeypadButtonState extends State<_KeypadButton>
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
-              width: 52,
-              height: 52,
+              width: buttonSize,
+              height: buttonSize,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -213,7 +232,7 @@ class _KeypadButtonState extends State<_KeypadButton>
                     backgroundColor.withOpacity(0.7),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(borderRadius),
                 boxShadow: [
                   BoxShadow(
                     color: backgroundColor.withOpacity(0.3),
@@ -226,7 +245,7 @@ class _KeypadButtonState extends State<_KeypadButton>
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: widget.onPressed,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(borderRadius),
                   child: Center(child: widget.child),
                 ),
               ),
