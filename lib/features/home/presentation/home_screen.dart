@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:reto_matematico/theme/app_theme.dart';
-import 'package:reto_matematico/theme/animated_background.dart';
-import 'package:reto_matematico/shared/widgets/primary_button.dart';
-import 'package:reto_matematico/shared/widgets/stat_chip.dart';
-import 'package:reto_matematico/services/storage_service.dart';
-import 'package:reto_matematico/features/game/domain/models.dart';
-import 'package:reto_matematico/services/ads_service.dart';
+import 'package:calculadora_mental/theme/app_theme.dart';
+import 'package:calculadora_mental/theme/animated_background.dart';
+import 'package:calculadora_mental/shared/widgets/primary_button.dart';
+import 'package:calculadora_mental/shared/widgets/stat_chip.dart';
+import 'package:calculadora_mental/services/storage_service.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
+import 'package:calculadora_mental/services/ads_service.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {

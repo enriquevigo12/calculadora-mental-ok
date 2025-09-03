@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:reto_matematico/features/game/domain/models.dart';
-import 'package:reto_matematico/services/daily_challenge_service.dart';
-import 'package:reto_matematico/services/storage_service.dart';
-import 'package:reto_matematico/theme/app_theme.dart';
-import 'package:reto_matematico/shared/widgets/number_keypad.dart';
-import 'package:reto_matematico/shared/utils/haptics.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
+import 'package:calculadora_mental/services/daily_challenge_service.dart';
+import 'package:calculadora_mental/services/storage_service.dart';
+import 'package:calculadora_mental/theme/app_theme.dart';
+import 'package:calculadora_mental/shared/widgets/number_keypad.dart';
+import 'package:calculadora_mental/shared/utils/haptics.dart';
 import 'package:confetti/confetti.dart';
 import 'dart:math';
 
@@ -97,8 +97,16 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
     
     setState(() {
       if (_currentAnswerIndex < _currentAnswers.length) {
-        _currentAnswers[_currentAnswerIndex] = int.parse(number);
-        _currentAnswerIndex++;
+        // Convertir el número actual a string para concatenar
+        String currentNumber = _currentAnswers[_currentAnswerIndex].toString();
+        if (currentNumber == "0") {
+          currentNumber = number;
+        } else {
+          currentNumber += number;
+        }
+        
+        // Convertir de vuelta a número
+        _currentAnswers[_currentAnswerIndex] = int.parse(currentNumber);
       }
     });
     
@@ -106,25 +114,59 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
   }
 
   void _onBackspace() {
-    if (_currentAnswerIndex > 0) {
+    if (_currentAnswerIndex < _currentAnswers.length && _currentAnswers[_currentAnswerIndex] > 0) {
+      setState(() {
+        String currentNumber = _currentAnswers[_currentAnswerIndex].toString();
+        if (currentNumber.length > 1) {
+          // Remover el último dígito
+          currentNumber = currentNumber.substring(0, currentNumber.length - 1);
+          _currentAnswers[_currentAnswerIndex] = int.parse(currentNumber);
+        } else {
+          // Si solo queda un dígito, ponerlo en 0
+          _currentAnswers[_currentAnswerIndex] = 0;
+        }
+      });
+    } else if (_currentAnswerIndex > 0) {
+      // Si no hay dígitos en el placeholder actual, ir al anterior
       setState(() {
         _currentAnswerIndex--;
+        // Limpiar el placeholder anterior
         _currentAnswers[_currentAnswerIndex] = 0;
       });
     }
     Haptics.lightImpact();
   }
 
+  void _onNextPlaceholder() {
+    if (_currentAnswerIndex < _currentAnswers.length - 1) {
+      setState(() {
+        _currentAnswerIndex++;
+      });
+      Haptics.lightImpact();
+    }
+  }
+
+  void _onPreviousPlaceholder() {
+    if (_currentAnswerIndex > 0) {
+      setState(() {
+        _currentAnswerIndex--;
+      });
+      Haptics.lightImpact();
+    }
+  }
+
   void _onConfirm() {
-    if (_currentAnswerIndex < _challenge!.phases[_challenge!.currentPhase].placeholders.length) {
-      // Aún faltan números por ingresar
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Completa todos los números antes de confirmar'),
-          backgroundColor: AppTheme.errorColor,
-        ),
-      );
-      return;
+    // Verificar que todos los placeholders tengan números válidos
+    for (int i = 0; i < _currentAnswers.length; i++) {
+      if (_currentAnswers[i] <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Completa el placeholder ${i + 1} antes de confirmar'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+        return;
+      }
     }
 
     final currentPhase = _challenge!.phases[_challenge!.currentPhase];
@@ -722,43 +764,78 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
             children: List.generate(phase.placeholders.length, (index) {
               final isCurrent = index == _currentAnswerIndex;
               final hasValue = _currentAnswers[index] > 0;
+              final value = _currentAnswers[index];
               
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: inputMargin),
-                width: inputBoxSize,
-                height: inputBoxSize,
-                decoration: BoxDecoration(
-                  color: isCurrent 
-                    ? AppColors.accentWarm.withOpacity(0.2)
-                    : hasValue 
-                      ? AppColors.success.withOpacity(0.2)
-                      : AppColors.cardDark,
-                  borderRadius: BorderRadius.circular(inputBorderRadius),
-                  border: Border.all(
+              return GestureDetector(
+                onTap: () {
+                  // Permitir navegación tocando los placeholders
+                  setState(() {
+                    _currentAnswerIndex = index;
+                  });
+                  Haptics.lightImpact();
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: inputMargin),
+                  width: inputBoxSize,
+                  height: inputBoxSize,
+                  decoration: BoxDecoration(
                     color: isCurrent 
-                      ? AppColors.accentWarm 
+                      ? AppColors.accentWarm.withOpacity(0.2)
                       : hasValue 
-                        ? AppColors.success 
-                        : AppColors.textSecondaryDark.withOpacity(0.3),
-                    width: 2,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    hasValue ? _currentAnswers[index].toString() : '?',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        ? AppColors.success.withOpacity(0.2)
+                        : AppColors.cardDark,
+                    borderRadius: BorderRadius.circular(inputBorderRadius),
+                    border: Border.all(
                       color: isCurrent 
                         ? AppColors.accentWarm 
                         : hasValue 
                           ? AppColors.success 
-                          : AppColors.textSecondaryDark,
-                      fontWeight: FontWeight.bold,
-                      fontSize: inputTextSize,
+                          : AppColors.textSecondaryDark.withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          hasValue ? value.toString() : '?',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: isCurrent 
+                              ? AppColors.accentWarm 
+                              : hasValue 
+                                ? AppColors.success 
+                                : AppColors.textSecondaryDark,
+                            fontWeight: FontWeight.bold,
+                            fontSize: inputTextSize,
+                          ),
+                        ),
+                        if (isCurrent && hasValue) ...[
+                          SizedBox(height: 2),
+                          Container(
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: AppColors.accentWarm,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
               );
             }),
+          ),
+          SizedBox(height: containerPadding * 0.5),
+          // Indicador de placeholder actual
+          Text(
+            'Placeholder ${_currentAnswerIndex + 1} de ${phase.placeholders.length}',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.textSecondaryDark,
+              fontSize: titleSize * 0.8,
+            ),
           ),
         ],
       ),
@@ -770,7 +847,9 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
       onNumberPressed: _onNumberPressed,
       onBackspace: _onBackspace,
       onConfirm: _onConfirm,
-      isConfirmEnabled: _currentAnswerIndex == _challenge!.phases[_challenge!.currentPhase].placeholders.length,
+      onNextPlaceholder: _onNextPlaceholder,
+      onPreviousPlaceholder: _onPreviousPlaceholder,
+      isConfirmEnabled: _currentAnswers.every((answer) => answer > 0),
       allowDecimals: false,
       isSmallScreen: isSmallScreen,
       isVerySmallScreen: isVerySmallScreen,

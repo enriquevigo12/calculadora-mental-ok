@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:reto_matematico/features/game/domain/models.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
 
 class AnalyticsService {
   static bool _isEnabled = false;

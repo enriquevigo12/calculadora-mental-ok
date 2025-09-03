@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:reto_matematico/features/game/data/session_repo.dart';
-import 'package:reto_matematico/features/game/domain/models.dart';
-import 'package:reto_matematico/shared/widgets/primary_button.dart';
-import 'package:reto_matematico/theme/app_theme.dart';
-import 'package:reto_matematico/services/storage_service.dart';
-import 'package:reto_matematico/services/ads_service.dart';
-import 'package:reto_matematico/shared/utils/haptics.dart';
+import 'package:calculadora_mental/features/game/data/session_repo.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
+import 'package:calculadora_mental/shared/widgets/primary_button.dart';
+import 'package:calculadora_mental/theme/app_theme.dart';
+import 'package:calculadora_mental/services/storage_service.dart';
+import 'package:calculadora_mental/services/ads_service.dart';
+import 'package:calculadora_mental/shared/utils/haptics.dart';
 
 class GameOverSheet extends StatefulWidget {
   final SessionRepository sessionRepo;

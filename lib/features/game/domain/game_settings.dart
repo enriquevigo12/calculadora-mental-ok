@@ -1,4 +1,4 @@
-import 'package:reto_matematico/services/storage_service.dart';
+import 'package:calculadora_mental/services/storage_service.dart';
 
 class GameSettings {
   final int minResult;

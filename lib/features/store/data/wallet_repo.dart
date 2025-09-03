@@ -1,7 +1,7 @@
-import 'package:reto_matematico/features/store/domain/wallet.dart';
-import 'package:reto_matematico/services/storage_service.dart';
-import 'package:reto_matematico/services/iap_service.dart';
-import 'package:reto_matematico/services/analytics_service.dart';
+import 'package:calculadora_mental/features/store/domain/wallet.dart';
+import 'package:calculadora_mental/services/storage_service.dart';
+import 'package:calculadora_mental/services/iap_service.dart';
+import 'package:calculadora_mental/services/analytics_service.dart';
 
 class StoreRepository {
   final WalletRepository _walletRepo = WalletRepository();

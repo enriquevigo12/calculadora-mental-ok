@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:reto_matematico/theme/app_theme.dart';
-import 'package:reto_matematico/features/game/domain/models.dart';
+import 'package:calculadora_mental/theme/app_theme.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
 import 'dart:ui';
 
 class StatChip extends StatelessWidget {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:reto_matematico/features/home/presentation/home_screen.dart';
-import 'package:reto_matematico/features/game/presentation/game_screen.dart';
-import 'package:reto_matematico/features/practice/presentation/practice_screen.dart';
-import 'package:reto_matematico/features/store/presentation/store_screen.dart';
-import 'package:reto_matematico/features/settings/presentation/settings_screen.dart';
-import 'package:reto_matematico/features/stats/presentation/stats_screen.dart';
-import 'package:reto_matematico/features/daily_challenge/presentation/daily_challenge_screen.dart';
+import 'package:calculadora_mental/features/home/presentation/home_screen.dart';
+import 'package:calculadora_mental/features/game/presentation/game_screen.dart';
+import 'package:calculadora_mental/features/practice/presentation/practice_screen.dart';
+import 'package:calculadora_mental/features/store/presentation/store_screen.dart';
+import 'package:calculadora_mental/features/settings/presentation/settings_screen.dart';
+import 'package:calculadora_mental/features/stats/presentation/stats_screen.dart';
+import 'package:calculadora_mental/features/daily_challenge/presentation/daily_challenge_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 🚀 Script de Build para Producción - Reto Matemático
+# 🚀 Script de Build para Producción - Calculadora Mental
 
 echo "🚀 Iniciando build de producción..."
 

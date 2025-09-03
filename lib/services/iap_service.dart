@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:reto_matematico/services/storage_service.dart';
+import 'package:calculadora_mental/services/storage_service.dart';
 
 class IAPService {
   static final InAppPurchase _inAppPurchase = InAppPurchase.instance;

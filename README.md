@@ -1,40 +1,35 @@
-# 🧮 Reto Matemático
+# 🧮 Calculadora Mental
 
-Un juego de retos matemáticos moderno y elegante desarrollado en Flutter con Material 3, diseñado para entrenar tu mente con operaciones matemáticas rápidas.
+Un juego de cálculo mental moderno y elegante desarrollado en Flutter con Material 3, diseñado para entrenar tu mente con operaciones matemáticas rápidas.
 
 ## ✨ Características
 
 ### 🎮 **Modos de Juego**
 - **Modo Fácil**: Suma y resta sobre un valor acumulado
 - **Modo Difícil**: Todas las operaciones (suma, resta, multiplicación, división)
-- **Reto del Día**: 3 fases de dificultad creciente con recompensas especiales
 
 ### 🏆 **Sistema de Rachas**
 - Seguimiento de rachas por modo
 - Récords personales
 - Sistema de continuaciones con coste Fibonacci
-- **Racha del Reto del Día**: Seguimiento de días consecutivos
 
 ### 💰 **Economía de Monedas**
 - **Recompensas por juego**: +1 moneda cada 10 aciertos
 - **Anuncios recompensados**: +1 moneda por anuncio (cooldown 10 min)
 - **Bono diario**: +1 moneda al día
 - **Continuar racha**: Coste progresivo (1, 2, 3, 5, 8, 13 monedas)
-- **Reto del Día**: +5 monedas al completar las 3 fases
 
 ### 🎨 **Diseño Moderno**
 - **Material 3**: Diseño moderno con GoogleFonts Nunito
 - **Modo Oscuro**: Tema oscuro elegante y consistente
 - **Animaciones**: Transiciones suaves y efectos visuales
 - **Glassmorphism**: Efectos de cristal en tarjetas y elementos UI
-- **UI Responsive**: Adaptada a todos los tamaños de pantalla
 
 ### 📊 **Estadísticas Detalladas**
 - Mejor racha por modo
 - Distribución por operación
 - Tiempo promedio de respuesta
 - Porcentaje de acierto
-- **Estadísticas del Reto del Día**: Racha actual, mejor racha, total completados
 
 ### ⚙️ **Configuración Personalizable**
 - Rango de resultados configurable
@@ -49,7 +44,6 @@ Un juego de retos matemáticos moderno y elegante desarrollado en Flutter con Ma
 - **Riverpod**: Gestión de estado
 - **go_router**: Navegación declarativa
 - **Hive**: Base de datos local NoSQL
-- **SharedPreferences**: Persistencia para estadísticas del reto diario
 - **Google Mobile Ads**: Anuncios recompensados
 - **In-App Purchase**: Compras dentro de la app
 
@@ -70,8 +64,8 @@ Un juego de retos matemáticos moderno y elegante desarrollado en Flutter con Ma
 
 1. **Clonar el repositorio**
 ```bash
-git clone https://github.com/tu-usuario/reto-matematico.git
-cd reto-matematico
+git clone https://github.com/tu-usuario/calculadora-mental.git
+cd calculadora-mental
 ```
 
 2. **Instalar dependencias**
@@ -97,18 +91,10 @@ flutter run
 - **Validación**: Resultados dentro del rango configurado
 - **Dificultad**: Ajuste automático basado en rendimiento
 
-### Reto del Día
-- **3 fases**: Dificultad creciente con ecuaciones únicas
-- **Pistas comprables**: 5 monedas por pista
-- **Reintentos**: 5 monedas por reintento de fase
-- **Recompensas**: +1 racha y +5 monedas al completar
-- **Reset diario**: Nuevo reto cada día
-
 ### Gestión de Datos
 - **Almacenamiento local**: Hive para estadísticas y configuración
 - **Almacenamiento seguro**: UUID del dispositivo
 - **Persistencia**: Datos mantenidos entre sesiones
-- **Estadísticas del reto**: SharedPreferences para datos del reto diario
 
 ### Monetización
 - **Anuncios recompensados**: Google Mobile Ads
@@ -132,25 +118,22 @@ lib/
 │   ├── storage_service.dart
 │   ├── ads_service.dart
 │   ├── iap_service.dart
-│   ├── analytics_service.dart
-│   └── daily_challenge_service.dart
+│   └── analytics_service.dart
 └── features/              # Funcionalidades principales
     ├── home/
     ├── game/
     ├── store/
     ├── settings/
-    ├── stats/
-    └── daily_challenge/
+    └── stats/
 ```
 
 ## 🎮 Cómo Jugar
 
-1. **Selecciona un modo**: Fácil, Difícil o Práctica
+1. **Selecciona un modo**: Fácil o Difícil
 2. **Resuelve operaciones**: El valor actual se actualiza con cada acierto
 3. **Mantén tu racha**: Cada acierto suma a tu racha
 4. **Gana monedas**: Cada 10 aciertos = 1 moneda
 5. **Continúa o reinicia**: Al fallar, puedes continuar gastando monedas
-6. **Reto del Día**: Completa 3 fases diarias para recompensas especiales
 
 ## 💡 Consejos
 
@@ -159,7 +142,6 @@ lib/
 - **Mira anuncios**: Para conseguir monedas extra
 - **Revisa estadísticas**: Identifica tus puntos débiles
 - **Ajusta configuración**: Personaliza según tu nivel
-- **Completa el reto diario**: Para mantener tu racha y ganar monedas
 
 ## 🔧 Configuración de Anuncios
 
@@ -175,9 +157,6 @@ lib/
 
 ## 📈 Roadmap
 
-- [x] **Reto del Día con 3 fases**
-- [x] **Sistema de pistas comprables**
-- [x] **UI completamente responsive**
 - [ ] **Anuncios intersticiales**
 - [ ] **Logros y badges**
 - [ ] **Modo multijugador**

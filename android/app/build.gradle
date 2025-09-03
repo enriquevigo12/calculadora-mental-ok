@@ -12,7 +12,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.enriquevillargodoy.retomatematico"
+    namespace = "com.enriquevillargodoy.calculadoramental"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -27,7 +27,7 @@ android {
 
     defaultConfig {
         // Application ID único para Google Play Store
-        applicationId = "com.enriquevillargodoy.retomatematico"
+        applicationId = "com.enriquevillargodoy.calculadoramental"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

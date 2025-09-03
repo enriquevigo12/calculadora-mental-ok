@@ -1,5 +1,5 @@
-name: reto_matematico
-description: Juego de retos matemáticos con rachas, monedas, anuncios recompensados e IAP.
+name: calculadora_mental
+description: Juego de cálculo mental con rachas, monedas, anuncios recompensados e IAP.
 publish_to: "none"
 version: 1.1.0+2
 

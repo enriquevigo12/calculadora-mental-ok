@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:reto_matematico/theme/app_theme.dart';
+import 'package:calculadora_mental/theme/app_theme.dart';
 
 class NumberKeypad extends StatefulWidget {
   final Function(String) onNumberPressed;
   final VoidCallback onBackspace;
   final VoidCallback onConfirm;
+  final VoidCallback? onNextPlaceholder; // Nuevo callback para siguiente placeholder
+  final VoidCallback? onPreviousPlaceholder; // Nuevo callback para placeholder anterior
   final bool isConfirmEnabled;
   final bool allowDecimals; // Nuevo parámetro para permitir decimales
   final bool isSmallScreen; // Nuevo parámetro para pantallas pequeñas
@@ -16,6 +18,8 @@ class NumberKeypad extends StatefulWidget {
     required this.onNumberPressed,
     required this.onBackspace,
     required this.onConfirm,
+    this.onNextPlaceholder,
+    this.onPreviousPlaceholder,
     this.isConfirmEnabled = false,
     this.allowDecimals = false, // Por defecto no permitir decimales
     this.isSmallScreen = false,
@@ -58,6 +62,38 @@ class _NumberKeypadState extends State<NumberKeypad> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: _numbers.skip(6).take(3).map((number) => _buildKey(number)).toList(),
           ),
+          SizedBox(height: rowSpacing),
+          
+          // Fila de navegación entre placeholders (si están disponibles)
+          if (widget.onNextPlaceholder != null || widget.onPreviousPlaceholder != null)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Botón placeholder anterior
+                if (widget.onPreviousPlaceholder != null)
+                  _buildActionKey(
+                    icon: Icons.arrow_back_ios,
+                    onPressed: widget.onPreviousPlaceholder,
+                    color: AppColors.accentWarm,
+                  )
+                else
+                  const SizedBox(width: 50), // Espacio vacío para mantener alineación
+                
+                // Espacio central
+                const SizedBox(width: 50),
+                
+                // Botón placeholder siguiente
+                if (widget.onNextPlaceholder != null)
+                  _buildActionKey(
+                    icon: Icons.arrow_forward_ios,
+                    onPressed: widget.onNextPlaceholder,
+                    color: AppColors.accentWarm,
+                  )
+                else
+                  const SizedBox(width: 50), // Espacio vacío para mantener alineación
+              ],
+            ),
+          
           SizedBox(height: rowSpacing),
           
           // Fila final: backspace, 0 y decimal (centrados), confirmar

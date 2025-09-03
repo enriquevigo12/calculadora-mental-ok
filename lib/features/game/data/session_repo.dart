@@ -1,8 +1,8 @@
-import 'package:reto_matematico/features/game/domain/models.dart';
-import 'package:reto_matematico/features/game/domain/game_engine.dart';
-import 'package:reto_matematico/features/game/domain/game_settings.dart';
-import 'package:reto_matematico/services/storage_service.dart';
-import 'package:reto_matematico/services/analytics_service.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
+import 'package:calculadora_mental/features/game/domain/game_engine.dart';
+import 'package:calculadora_mental/features/game/domain/game_settings.dart';
+import 'package:calculadora_mental/services/storage_service.dart';
+import 'package:calculadora_mental/services/analytics_service.dart';
 
 class SessionRepository {
   GameSession? _currentSession;

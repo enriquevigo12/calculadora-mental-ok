@@ -2,8 +2,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:reto_matematico/features/game/domain/models.dart';
-import 'package:reto_matematico/features/store/domain/wallet.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
+import 'package:calculadora_mental/features/store/domain/wallet.dart';
 
 part 'storage_service.g.dart';
 

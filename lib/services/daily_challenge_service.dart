@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:reto_matematico/features/game/domain/models.dart';
+import 'package:calculadora_mental/features/game/domain/models.dart';
 
 class DailyChallengeService {
   static final DailyChallengeService _instance = DailyChallengeService._internal();
